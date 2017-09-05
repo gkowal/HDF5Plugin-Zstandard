@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include "zstd_h5plugin.h"
+#include "hdf5.h"
 #include "zstd.h"
 
 #define ZSTD_FILTER 32015
 
-DLL_EXPORT size_t zstd_filter(unsigned int flags, size_t cd_nelmts,
+size_t zstd_filter(unsigned int flags, size_t cd_nelmts,
 	const unsigned int cd_values[], size_t nbytes,
 	size_t *buf_size, void **buf)
 {
@@ -66,12 +66,12 @@ const H5Z_class_t zstd_H5Filter =
 	(H5Z_func_t)(zstd_filter)
 };
 
-DLL_EXPORT H5PL_type_t H5PLget_plugin_type(void)
+H5PL_type_t H5PLget_plugin_type(void)
 {
 	return H5PL_TYPE_FILTER;
 }
 
-DLL_EXPORT const void* H5PLget_plugin_info(void)
+const void* H5PLget_plugin_info(void)
 {
 	return &zstd_H5Filter;
 }
