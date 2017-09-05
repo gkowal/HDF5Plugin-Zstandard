@@ -1,6 +1,6 @@
 #include "hdf5.h"
 
-#define DLL_EXPORT __declspec(dllexport) 
+#define DLL_EXPORT __declspec(dllexport)
 
 #ifdef __cplusplus
 extern "C" {
