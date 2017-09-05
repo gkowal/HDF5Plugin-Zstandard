@@ -2,15 +2,34 @@
 #include "hdf5.h"
 #include "zstd.h"
 
-#define ZSTD_FILTER 32015
+static size_t H5Z_filter_zstd(unsigned int flags, size_t cd_nelmts,
+                              const unsigned int cd_values[], size_t nbytes,
+                              size_t *buf_size, void **buf);
 
-size_t zstd_filter(unsigned int flags, size_t cd_nelmts,
-	const unsigned int cd_values[], size_t nbytes,
-	size_t *buf_size, void **buf)
+#define H5Z_FILTER_ZSTD 32015
+
+const H5Z_class_t H5Z_ZSTD[1] = {{
+    H5Z_CLASS_T_VERS,                   /* H5Z_class_t version                */
+    (H5Z_filter_t)(H5Z_FILTER_ZSTD),    /* Filter id number                   */
+    1,                                  /* encoder_present flag (set to true) */
+    1,                                  /* decoder_present flag (set to true) */
+    "Zstandard compression: http://www.zstd.net",
+                                        /* Filter name for debugging          */
+    NULL,                               /* The "can apply" callback           */
+    NULL,                               /* The "set local" callback           */
+    (H5Z_func_t)(H5Z_filter_zstd)       /* The actual filter function         */
+}};
+
+H5PL_type_t H5PLget_plugin_type(void) { return H5PL_TYPE_FILTER; }
+const void* H5PLget_plugin_info(void) { return H5Z_ZSTD; }
+
+static size_t H5Z_filter_zstd(unsigned int flags, size_t cd_nelmts,
+                              const unsigned int cd_values[], size_t nbytes,
+                              size_t *buf_size, void **buf)
 {
-	void *outbuf = NULL;    /* Pointer to new output buffer */
-	void *inbuf = NULL;    /* Pointer to input buffer */
-	inbuf = *buf;
+    void *outbuf = NULL;    /* Pointer to new output buffer */
+    void *inbuf = NULL;     /* Pointer to input buffer */
+    inbuf = *buf;
 
 	size_t ret_value;
 	size_t origSize = nbytes;     /* Number of bytes for output (compressed) buffer */
@@ -54,24 +73,4 @@ size_t zstd_filter(unsigned int flags, size_t cd_nelmts,
 
 error:
 	return 0;
-}
-
-const H5Z_class_t zstd_H5Filter =
-{
-	H5Z_CLASS_T_VERS,
-	(H5Z_filter_t)(ZSTD_FILTER),
-	1, 1,
-	"Zstandard compression: http://www.zstd.net",
-	NULL, NULL,
-	(H5Z_func_t)(zstd_filter)
-};
-
-H5PL_type_t H5PLget_plugin_type(void)
-{
-	return H5PL_TYPE_FILTER;
-}
-
-const void* H5PLget_plugin_info(void)
-{
-	return &zstd_H5Filter;
 }
