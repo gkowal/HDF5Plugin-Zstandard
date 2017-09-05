@@ -49,8 +49,8 @@ static size_t H5Z_filter_zstd(unsigned int flags, size_t cd_nelmts,
         int aggression = 0;
         if (cd_nelmts > 0)
             aggression = (int)cd_values[0];
-        if (aggression > 22)
-            aggression = 22;
+        if (aggression > 20)
+            aggression = 20;
 
         size_t compSize = ZSTD_compressBound(origSize);
         if (NULL == (outbuf = malloc(compSize)))
